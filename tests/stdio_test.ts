@@ -21,6 +21,28 @@ const STDIO_TIMEOUT_MS = 30_000;
 const PUBLISHED_ARTIFACT_TIMEOUT_MS = 120_000;
 const CHILD_SHUTDOWN_TIMEOUT_MS = 1_000;
 
+function isAllowedPublishedImage(image: string): boolean {
+  return /^ghcr\.io\/(?:casys-ai|superworldsavior)\/mcp-prusaslicer@sha256:[a-f0-9]{64}$/
+    .test(image);
+}
+
+Deno.test("published image coordinate restricts namespace, package and digest", () => {
+  const digest = `sha256:${"a".repeat(64)}`;
+  assert(isAllowedPublishedImage(`ghcr.io/casys-ai/mcp-prusaslicer@${digest}`));
+  assert(isAllowedPublishedImage(`ghcr.io/superworldsavior/mcp-prusaslicer@${digest}`));
+  for (
+    const image of [
+      `ghcr.io/another-owner/mcp-prusaslicer@${digest}`,
+      `ghcr.io/superworldsavior/another-package@${digest}`,
+      "ghcr.io/superworldsavior/mcp-prusaslicer:latest",
+      `ghcr.io/superworldsavior/mcp-prusaslicer@sha256:${"a".repeat(63)}`,
+      `ghcr.io/superworldsavior/mcp-prusaslicer@sha256:${"g".repeat(64)}`,
+    ]
+  ) {
+    assert(!isAllowedPublishedImage(image), `unexpected allowed image ${image}`);
+  }
+});
+
 class StdioTimeoutError extends Error {
   constructor(timeoutMs: number) {
     super(`Timed out after ${timeoutMs}ms waiting for native stdio response.`);
@@ -449,9 +471,7 @@ Deno.test(
     ignore: !RUN_PUBLISHED_ARTIFACTS,
     async fn(t) {
       assert(
-        /^ghcr\.io\/casys-ai\/mcp-prusaslicer@sha256:[a-f0-9]{64}$/.test(
-          PUBLISHED_GHCR_IMAGE,
-        ),
+        isAllowedPublishedImage(PUBLISHED_GHCR_IMAGE),
         "the GHCR smoke target must be an immutable digest reference",
       );
 

@@ -8,6 +8,9 @@ on:
       - "v*"
   workflow_dispatch:
 
+env:
+  REGISTRY_IMAGE: ghcr.io/superworldsavior/mcp-prusaslicer
+
 jobs:
   native-check:
     runs-on: ubuntu-latest
@@ -63,7 +66,7 @@ jobs:
       - uses: docker/metadata-action@v5
         id: meta
         with:
-          images: ghcr.io/casys-ai/mcp-prusaslicer
+          images: ${{ env.REGISTRY_IMAGE }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
@@ -135,5 +138,5 @@ jobs:
       - name: Smoke-test the published JSR package and pinned GHCR digest
         env:
           PUBLISHED_JSR_VERSION: ${{ steps.jsr.outputs.version }}
-          PUBLISHED_GHCR_IMAGE: ghcr.io/casys-ai/mcp-prusaslicer@${{ needs.build-push.outputs.image_digest }}
+          PUBLISHED_GHCR_IMAGE: ${{ env.REGISTRY_IMAGE }}@${{ needs.build-push.outputs.image_digest }}
         run: deno task test:published
