@@ -13,8 +13,8 @@ pass a bounded ASCII-or-binary STL identity check before the server snapshots it
 starts PrusaSlicer.
 
 This is a slicing estimate, not printer telemetry or a price quote. It complements
-[`mcp-dfm`](https://github.com/Casys-AI/mcp-dfm), which measures STEP geometry, and
-[`mcp-calculix`](https://github.com/Casys-AI/mcp-calculix), which performs FEA.
+[`mcp-dfm`](https://github.com/superWorldSavior/mcp-dfm), which measures STEP geometry, and
+[`mcp-calculix`](https://github.com/superWorldSavior/mcp-calculix), which performs FEA.
 
 ## Current release 0.4.0
 
